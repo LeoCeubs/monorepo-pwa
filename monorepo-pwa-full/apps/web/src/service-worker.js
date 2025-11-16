@@ -1,0 +1,3 @@
+const CACHE='bootcamp-cache-v1';const ASSETS=['/','/index.html','/manifest.webmanifest'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(res=>{const f=fetch(e.request).then(nr=>{const c=nr.clone();caches.open(CACHE).then(ca=>ca.put(e.request,c));return nr;});return res||f;}))});
