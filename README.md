@@ -43,7 +43,7 @@ Serviços rodando:
 
 🔄 Última Execução do CI (build + testes + deploy)
 
-👉 https://github.com/LeoCeubs/monorepo-pwa/actions/runs/19408056720/job/55525607134
+👉 https://github.com/LeoCeubs/monorepo-pwa/actions/runs/19408056720
 
 📁 Artefatos gerados pelo CI
 
