@@ -6,4 +6,4 @@ services:
     build: ./apps/web
     ports: ["8080:80"]
     depends_on: [api]
-    environment: ["VITE_API_URL=http://localhost:3000"]
+    environment: ["VITE_API_URL=http://localhost:3000"].
