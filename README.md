@@ -35,7 +35,7 @@ Serviços rodando:
 
 🔗 Links da Entrega (Requisitos do Trabalho) 📦 Repositório Monorepo
 
-👉 https://github.com/alexandren18/monorepo-pwa
+👉 https://github.com/LeoCeubs/monorepo-pwa
 
 🌐 PWA publicado (GitHub Pages)
 
