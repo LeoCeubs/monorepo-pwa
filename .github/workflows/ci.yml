@@ -1,0 +1,92 @@
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Descobre automaticamente onde está a pasta do web
+      - name: Detect web directory
+        run: |
+          set -e
+          echo "Tree (até 3 níveis):"
+          find . -maxdepth 3 -type d | sort
+
+          if [ -d "apps/web" ]; then
+            echo "WEB_DIR=apps/web" >> $GITHUB_ENV
+          elif [ -d "monorepo-pwa-full/apps/web" ]; then
+            echo "WEB_DIR=monorepo-pwa-full/apps/web" >> $GITHUB_ENV
+          elif [ -d "web" ]; then
+            echo "WEB_DIR=web" >> $GITHUB_ENV
+          else
+            echo "ERRO: não encontrei a pasta do web (apps/web, monorepo-pwa-full/apps/web ou web)." >&2
+            exit 1
+          fi
+          echo "WEB_DIR detectado: $WEB_DIR"
+
+      - name: Install deps (web) — usa ci se houver lock, senão install
+        run: |
+          cd "$WEB_DIR"
+          if [ -f package-lock.json ]; then
+            echo "Usando npm ci (lockfile encontrado)"
+            npm ci
+          else
+            echo "Sem package-lock.json — usando npm install"
+            npm install --no-audit --no-fund
+          fi
+        env:
+          WEB_DIR: ${{ env.WEB_DIR }}
+
+      - name: Build web
+        run: |
+          cd "$WEB_DIR"
+          npm run build
+        env:
+          WEB_DIR: ${{ env.WEB_DIR }}
+
+      - name: Upload artifact (web-dist)
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: ${{ env.WEB_DIR }}/dist
+
+  deploy:
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download web-dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
